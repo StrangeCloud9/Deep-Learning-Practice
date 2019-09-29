@@ -27,14 +27,27 @@ class myDataSet(Dataset):
 
         for item in self.x:
             self.len += len(item)
+
+        index = 0
+        row = 0
+        col = 0
+        self.index_map= {}
+
+        while index < self.len:
+            while col >= len(self.x[row]):
+                col = 0
+                row += 1
+            self.index_map[index] = [row, col]
+
+            index += 1
+            col += 1
         return 
     
     def __getitem__(self, index):
-        row = 0
 
-        while index >= len(self.x[row]):
-            index -= len(self.x[row])
-            row += 1
+        row = self.index_map[index][0]
+        index = self.index_map[index][1]
+
 
         center_x = np.array(self.x[row][max(index - self.padding_len, 0) : min(index + self.padding_len + 1, len(self.x[row]))] )
         head_padding = max(0, 12 - index)
@@ -67,19 +80,19 @@ def get_loader(mode="train"):
     data = np.load(data_path)
 
     if config.sanity:
-        data = data[:2]
+        data = data[:100]
 
     if labels_path:
         labels = np.load(labels_path)
         if config.sanity:
-            labels = labels[:2]
+            labels = labels[:100]
 
         print(data.shape, labels.shape)
         dataset = myDataSet(data, labels)
     else:
         dataset = myDataSet(data)
 
-    dataloader = DataLoader(dataset, shuffle=shuffle, batch_size=config.batch_size, drop_last=False)
+    dataloader = DataLoader(dataset, shuffle=shuffle, batch_size=config.batch_size, drop_last=True, pin_memory=True, num_workers=4)
 
     return dataloader
 

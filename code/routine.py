@@ -5,7 +5,7 @@ import config
 import torch
 import torch.nn as nn
 import numpy as np
-
+import time
 device = "cuda" if config.cuda else "cpu"
 
 
@@ -13,9 +13,19 @@ def run_one_epoch(model, loader, criterion, update=True, optimizer=None):
     cum_loss = 0
     cnt = 0
     correct = 0
+    run_cnt = 0
+    
+    start = time.time()
+    print ('len loader:', len(loader))
     for x, y in loader:
+        run_cnt += 1
+        
         x = x.to(device)
         y = y.to(device)
+
+        if run_cnt % 1000 == 0:
+            print ('<---', run_cnt, '--->', 'time:', time.time() - start)
+            start = time.time()
         output = model(x)
         
         classes = np.argmax(output.cpu().detach().numpy(), axis=1)
@@ -33,6 +43,7 @@ def run_one_epoch(model, loader, criterion, update=True, optimizer=None):
 
     if cnt != 0:
         print ('======ACCURACY:', correct / cnt, '========')
+    print ('=================one epoch over================')
     return cum_loss/len(loader)
 
 
