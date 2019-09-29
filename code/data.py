@@ -43,10 +43,10 @@ class myDataSet(Dataset):
             col += 1
         return 
     
-    def __getitem__(self, index):
+    def __getitem__(self, real_idx):
 
-        row = self.index_map[index][0]
-        index = self.index_map[index][1]
+        row = self.index_map[real_idx][0]
+        index = self.index_map[real_idx][1]
 
 
         center_x = np.array(self.x[row][max(index - self.padding_len, 0) : min(index + self.padding_len + 1, len(self.x[row]))] )
@@ -56,8 +56,10 @@ class myDataSet(Dataset):
         center_x = np.pad(center_x, ((head_padding, tail_padding), (0, 0)), 'constant', constant_values = 0)
         center_x = center_x.reshape(-1)
         if self.is_test: 
-            return center_x
-        return center_x, self.y[row][index]
+            return torch.tensor(center_x, dtype=torch.float)
+        #torch.tensor(center_x, dtype=torch.float), torch.long
+        return torch.tensor(center_x, dtype=torch.float), torch.tensor(self.y[row][index], dtype=torch.long)
+        
     
     def __len__(self,):
 

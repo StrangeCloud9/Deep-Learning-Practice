@@ -25,6 +25,7 @@ def run_one_epoch(model, loader, criterion, update=True, optimizer=None):
 
         if run_cnt % 1000 == 0:
             print ('<---', run_cnt, '--->', 'time:', time.time() - start)
+            #print ('-', end='', flush=True)
             start = time.time()
         output = model(x)
         
